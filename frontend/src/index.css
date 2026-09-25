@@ -487,3 +487,272 @@ body {
   .cards-grid { grid-template-columns: 1fr; }
   .navbar { padding: 0 16px; }
 }
+
+/* ═══════════════════════════════════════════════════════
+   PROCTORING SYSTEM — Fullscreen Gate & Violation Overlay
+   ═══════════════════════════════════════════════════════ */
+
+/* ─── Fullscreen Gate ─── */
+.proctor-gate {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background:
+    radial-gradient(ellipse at 20% 50%, rgba(99, 102, 241, 0.12) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 20%, rgba(168, 85, 247, 0.08) 0%, transparent 50%),
+    var(--bg-primary);
+  padding: 20px;
+}
+
+.proctor-gate-card {
+  width: 100%;
+  max-width: 520px;
+  background: linear-gradient(135deg, rgba(26, 31, 53, 0.95), rgba(35, 41, 64, 0.9));
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  padding: 48px 40px;
+  text-align: center;
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(99, 102, 241, 0.1);
+}
+
+.proctor-gate-icon {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 24px;
+  border-radius: 20px;
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(99, 102, 241, 0.05));
+  border: 1px solid rgba(99, 102, 241, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent-secondary);
+  animation: pulse-glow 3s ease-in-out infinite;
+}
+
+.proctor-gate-title {
+  font-size: 1.75rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  margin-bottom: 6px;
+  background: linear-gradient(135deg, #f1f5f9, #a78bfa);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.proctor-gate-subtitle {
+  color: var(--text-secondary);
+  font-size: 1rem;
+  margin-bottom: 28px;
+}
+
+.proctor-gate-subtitle strong {
+  color: var(--text-primary);
+}
+
+.proctor-rules {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 32px;
+  text-align: left;
+}
+
+.proctor-rule {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 12px;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+.proctor-rule-icon {
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+
+.proctor-enter-btn {
+  width: 100%;
+  padding: 16px 28px;
+  background: linear-gradient(135deg, #6366f1, #4f46e5);
+  color: white;
+  border: none;
+  border-radius: 14px;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.proctor-enter-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 35px rgba(99, 102, 241, 0.5);
+}
+
+.proctor-enter-btn:active {
+  transform: translateY(0);
+}
+
+.proctor-gate-note {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+/* ─── Violation Warning Overlay ─── */
+.proctor-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(8px);
+  padding: 20px;
+}
+
+.proctor-warning-card {
+  position: relative;
+  width: 100%;
+  max-width: 460px;
+  background: linear-gradient(135deg, rgba(26, 31, 53, 0.98), rgba(35, 41, 64, 0.95));
+  border: 1px solid rgba(245, 158, 11, 0.4);
+  border-radius: 24px;
+  padding: 40px 36px;
+  text-align: center;
+  box-shadow:
+    0 0 0 1px rgba(245, 158, 11, 0.15),
+    0 24px 80px rgba(0, 0, 0, 0.6),
+    0 0 60px rgba(245, 158, 11, 0.08);
+  overflow: hidden;
+}
+
+.proctor-warning-final {
+  border-color: rgba(239, 68, 68, 0.5) !important;
+  box-shadow:
+    0 0 0 1px rgba(239, 68, 68, 0.2),
+    0 24px 80px rgba(0, 0, 0, 0.6),
+    0 0 60px rgba(239, 68, 68, 0.1) !important;
+}
+
+@keyframes warning-pulse {
+  0%, 100% { transform: scale(1); opacity: 0.15; }
+  50% { transform: scale(1.1); opacity: 0.25; }
+}
+
+.proctor-warning-pulse {
+  position: absolute;
+  inset: -20px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(245, 158, 11, 0.15), transparent 70%);
+  animation: warning-pulse 2s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.proctor-warning-icon {
+  font-size: 3rem;
+  margin-bottom: 16px;
+  display: block;
+  line-height: 1;
+}
+
+.proctor-warning-title {
+  font-size: 1.5rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  margin-bottom: 12px;
+  color: var(--text-primary);
+}
+
+.proctor-warning-message {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  line-height: 1.6;
+  margin-bottom: 24px;
+}
+
+/* ─── Strike dots ─── */
+.proctor-strikes {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.proctor-strike-dot {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+}
+
+.strike-empty {
+  background: var(--bg-elevated);
+  border: 2px solid var(--border);
+}
+
+.strike-active {
+  background: #f59e0b;
+  box-shadow: 0 0 12px rgba(245, 158, 11, 0.6);
+}
+
+.strike-final {
+  background: #ef4444;
+  box-shadow: 0 0 12px rgba(239, 68, 68, 0.6);
+}
+
+.proctor-strikes-label {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  margin-bottom: 24px;
+}
+
+.proctor-dismiss-btn {
+  padding: 14px 28px;
+  background: linear-gradient(135deg, #6366f1, #4f46e5);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.proctor-dismiss-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(99, 102, 241, 0.5);
+}
+
+/* ─── In-sidebar violation badge ─── */
+.proctor-violation-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+  padding: 5px 12px;
+  background: rgba(245, 158, 11, 0.12);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #fbbf24;
+  animation: fadeIn 0.3s ease-out;
+}
+

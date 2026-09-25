@@ -7,6 +7,8 @@ import ProblemPanel from '../components/ProblemPanel';
 import ExamTimer from '../components/ExamTimer';
 import TestCaseResults from '../components/TestCaseResults';
 import LanguageSelector from '../components/LanguageSelector';
+import { FullscreenGate, ViolationWarning } from '../components/ProctoringOverlay';
+import { useProctoring } from '../hooks/useProctoring';
 
 const BOILERPLATE = {
   python: '# Write your Python solution here\n\ndef solve():\n    # Read input\n    n = int(input())\n    # Your code here\n    print(n)\n\nsolve()\n',
@@ -29,6 +31,10 @@ export default function ExamPage() {
   const [submitting, setSubmitting] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+
+  // ── Proctoring ──────────────────────────────────────────
+  // examActive becomes true once the user clicks "Enter Fullscreen"
+  const [examActive, setExamActive] = useState(false);
 
   // Track code per question per language
   const codeStore = useRef({});
@@ -139,6 +145,31 @@ export default function ExamPage() {
     }, 3000);
   }, [selectedQuestion, code, examId]);
 
+  // ── Proctoring hook ─────────────────────────────────────
+  const handleForceSubmit = useCallback(() => {
+    // Called when violations hit max — submit then redirect
+    if (selectedQuestion && code) {
+      submitCode();
+    }
+    setTimeout(() => {
+      navigate(`/results/${examId}`);
+    }, 4000);
+  }, [selectedQuestion, code, examId]);
+
+  const {
+    violations,
+    maxViolations,
+    warningVisible,
+    warningMessage,
+    dismissWarning,
+    enterFullscreen,
+  } = useProctoring(examActive, handleForceSubmit);
+
+  const handleEnterFullscreen = useCallback(() => {
+    setExamActive(true);
+    enterFullscreen();
+  }, [enterFullscreen]);
+
   if (loading) {
     return (
       <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 'calc(100vh - 64px)' }}>
@@ -156,12 +187,36 @@ export default function ExamPage() {
   }
 
   return (
+    <>
+      {/* ── Fullscreen gate (shown before exam starts) ── */}
+      {!examActive && (
+        <FullscreenGate examTitle={exam.title} onEnter={handleEnterFullscreen} />
+      )}
+
+      {/* ── Violation warning modal ── */}
+      {warningVisible && (
+        <ViolationWarning
+          message={warningMessage}
+          violations={violations}
+          maxViolations={maxViolations}
+          onDismiss={dismissWarning}
+        />
+      )}
+
     <div className="exam-layout">
       {/* Sidebar — Question List */}
       <div className="exam-sidebar">
         <div style={{ padding: '0 16px', marginBottom: '16px' }}>
           <h3 style={{ fontSize: '0.95rem', fontWeight: 700, marginBottom: '4px' }}>{exam.title}</h3>
           <ExamTimer endTime={exam.endTime} onTimeUp={handleTimeUp} />
+
+          {/* Violation counter badge */}
+          {examActive && violations > 0 && (
+            <div className="proctor-violation-badge">
+              <span>⚠️</span>
+              <span>{violations}/{maxViolations} violations</span>
+            </div>
+          )}
         </div>
 
         <div style={{ borderTop: '1px solid var(--border)', paddingTop: '8px' }}>
@@ -258,5 +313,6 @@ export default function ExamPage() {
         )}
       </div>
     </div>
+    </>
   );
 }
